@@ -36,9 +36,9 @@ export const RefreshButton: React.FC<RefreshButtonProps> = ({
 
   const getSizeStyles = () => {
     switch (size) {
-      case 'small': return { width: '40px', height: '40px', fontSize: '16px' };
-      case 'large': return { width: '80px', height: '80px', fontSize: '32px' };
-      default: return { width: '60px', height: '60px', fontSize: '24px' };
+      case 'small': return { width: '50px', height: '50px', fontSize: '20px' };
+      case 'large': return { width: '100px', height: '100px', fontSize: '40px' };
+      default: return { width: '80px', height: '80px', fontSize: '32px' };
     }
   };
 

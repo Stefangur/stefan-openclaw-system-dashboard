@@ -129,7 +129,7 @@ export default function OpenClawDashboard() {
             🤖 Stefan's OpenClaw Dashboard
           </h1>
           <p style={{ color: '#94a3b8', fontSize: '1.1rem' }}>
-            ✅ System Online | {currentTime} | Health Score: {healthScore}/100 • Manual Refresh 🔄
+            ✅ System Online | {currentTime} | Health Score: {healthScore}/100 • Manual Refresh
           </p>
           
           {/* Navigation */}
@@ -366,6 +366,7 @@ export default function OpenClawDashboard() {
           icon="🤖"
           label="System laden"
           lastUpdate={lastRefresh}
+          size="large"
         />
 
         {/* Footer */}
