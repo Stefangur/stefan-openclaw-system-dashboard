@@ -24,9 +24,9 @@ const fallbackData = {
   
   recentSessions: [
     {
-      id: 'fitness-subagent-001',
+      id: 'fitness-dashboard-crisis',
       type: 'sub-agent',
-      task: 'Dashboard Tab Creation',
+      task: 'Fitness Dashboard 404 Tab-Pages Fix',
       status: 'completed',
       startTime: '08:45:00',
       duration: '45m',
@@ -34,7 +34,22 @@ const fallbackData = {
       endTime: '09:30:00',
       result: 'success',
       parent: 'telegram-main',
-      cost: 0.23
+      cost: 0.23,
+      output: 'All 5 tabs functional: Ernährung, Training, Fortschritt, Gesundheit, Übersicht'
+    },
+    {
+      id: 'openclaw-dashboard-creation',
+      type: 'sub-agent',
+      task: 'OpenClaw Dashboard von Scratch',
+      status: 'completed',
+      startTime: '09:15:00',
+      duration: '35m',
+      messages: 18,
+      endTime: '09:50:00',
+      result: 'success',
+      parent: 'telegram-main',
+      cost: 0.31,
+      output: 'Complete system monitoring dashboard mit 5 tabs deployed'
     },
     {
       id: 'portfolio-sync-002',
@@ -63,12 +78,13 @@ const fallbackData = {
   ],
   
   sessionStats: {
-    totalToday: 4,
+    totalToday: 5,
     activeNow: 1,
-    completedToday: 3,
-    totalMessages: 62,
-    totalCost: 1.15,
-    averageDuration: '52m',
+    completedToday: 4,
+    subagentsToday: 2,
+    totalMessages: 80,
+    totalCost: 1.69,
+    averageDuration: '42m',
     successRate: 100.0
   },
   
@@ -168,6 +184,21 @@ export default function SessionsPage() {
               {fallbackData.sessionStats.totalToday}
             </div>
             <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>Sessions Heute</div>
+          </div>
+
+          <div style={{
+            background: 'rgba(34, 197, 94, 0.1)',
+            borderRadius: '16px',
+            padding: '1.5rem',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(34, 197, 94, 0.2)',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🤖</div>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#22c55e', marginBottom: '0.5rem' }}>
+              {fallbackData.sessionStats.subagentsToday}
+            </div>
+            <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>Sub-Agents Today</div>
           </div>
 
           <div style={{
