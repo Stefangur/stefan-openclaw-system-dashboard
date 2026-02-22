@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Stefan\'s Fitness Dashboard v2.0 💪',
-  description: 'Enhanced fitness tracking with AI-assisted features',
+  title: 'Stefan\'s OpenClaw Dashboard 🤖',
+  description: 'OpenClaw system monitoring with real-time analytics',
 }
 
 export default function RootLayout({
