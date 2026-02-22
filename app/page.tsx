@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import RefreshButton from '../components/RefreshButton'
+import AuthGate from '../components/AuthGate'
 
 // Stefan's OpenClaw System Data (Real-Time)
 const initialFallbackData = {
@@ -49,10 +50,23 @@ const systemHealthScore = (data: typeof initialFallbackData) => {
 }
 
 export default function OpenClawDashboard() {
+  // Authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  
   const [data, setData] = useState(initialFallbackData)
   const [currentTime, setCurrentTime] = useState('')
   const [healthScore, setHealthScore] = useState(0)
   const [lastRefresh, setLastRefresh] = useState(new Date())
+
+  // Show auth gate if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <AuthGate 
+        onAuthenticated={() => setIsAuthenticated(true)}
+        dashboardName="🤖 Stefan's OpenClaw System Monitor"
+      />
+    )
+  }
 
   // Refresh function for OpenClaw system data
   const handleRefresh = async () => {
