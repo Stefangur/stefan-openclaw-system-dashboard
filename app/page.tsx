@@ -1,398 +1,207 @@
 'use client'
 
-import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import RefreshButton from '../components/RefreshButton'
-import AuthGate from '../components/AuthGate'
 
-// Stefan's OpenClaw System Data (Real-Time)
-const initialFallbackData = {
-  systemStatus: {
-    gateway: { status: 'online', pid: 3488, uptime: '2h 15m', port: 18789 },
-    agent: { status: 'active', sessions: 1, model: 'claude-sonnet-4', cost_today: 0.85 },
-    platform: { os: 'macOS 26.3', node: 'v22.22.0', openclaw: '2026.2.21-2' },
-    health: { cpu: 12, memory: 68, disk: 45, temp: 42 }
-  },
-  
-  todayActivity: {
-    sessions: 3,
-    messages: 47,
-    tool_calls: 156,
-    cron_jobs: 8,
-    errors: 0,
-    uptime_percent: 99.8
-  },
-  
-  recentSessions: [
-    { id: 'main', type: 'telegram', duration: '2h 15m', messages: 47, status: 'active' },
-    { id: 'fitness', type: 'sub-agent', duration: '45m', messages: 12, status: 'completed' },
-    { id: 'portfolio', type: 'cron', duration: '2m', messages: 3, status: 'completed' }
-  ],
-  
-  cronJobs: [
-    { name: 'Morning Briefing', schedule: 'daily 07:30', next_run: 'heute 19:30', status: 'active' },
-    { name: 'Weather Update', schedule: 'daily 07:00', next_run: 'heute 19:00', status: 'active' },
-    { name: 'Fitness Sync', schedule: 'every 30min', next_run: 'in 12min', status: 'active' },
-    { name: 'Bitcoin Monitor', schedule: 'every 15min', next_run: 'in 3min', status: 'active' },
-    { name: 'Portfolio Check', schedule: 'every hour', next_run: 'in 23min', status: 'active' }
-  ]
+const CARD: React.CSSProperties = {
+  background: 'rgba(255,255,255,0.07)',
+  backdropFilter: 'blur(12px)',
+  borderRadius: '16px',
+  padding: '1.5rem',
+  border: '1px solid rgba(255,255,255,0.12)',
+  marginBottom: '1rem',
 }
 
-// System health calculation
-const systemHealthScore = (data: typeof initialFallbackData) => {
-  const factors = [
-    data.systemStatus.health.cpu < 20 ? 25 : 20 - (data.systemStatus.health.cpu - 20),
-    data.systemStatus.health.memory < 80 ? 25 : 20 - (data.systemStatus.health.memory - 80),
-    data.systemStatus.health.disk < 90 ? 25 : 15 - (data.systemStatus.health.disk - 90),
-    data.todayActivity.errors === 0 ? 25 : Math.max(0, 25 - data.todayActivity.errors * 5)
-  ]
-  return factors.reduce((sum, factor) => sum + factor, 0)
+const LABEL: React.CSSProperties = {
+  color: 'rgba(255,255,255,0.5)',
+  fontSize: '0.8rem',
+  marginBottom: '0.25rem',
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+}
+
+const VALUE: React.CSSProperties = {
+  fontWeight: 700,
+  fontSize: '1.1rem',
+}
+
+const BADGE_GREEN: React.CSSProperties = {
+  display: 'inline-block',
+  background: 'rgba(34,197,94,0.2)',
+  color: '#4ade80',
+  borderRadius: '999px',
+  padding: '0.2rem 0.75rem',
+  fontSize: '0.8rem',
+  fontWeight: 600,
+}
+
+const BADGE_GRAY: React.CSSProperties = {
+  ...BADGE_GREEN,
+  background: 'rgba(148,163,184,0.2)',
+  color: '#94a3b8',
+}
+
+// Static system info — live data would require OpenClaw API access from Render
+const STATIC = {
+  platform: 'macOS 26.3 (arm64)',
+  node: 'v22.22.0',
+  openclaw: '2026.2.22-2',
+  model: 'claude-haiku-4.5',
+  channel: 'Telegram (@SGUButler_bot)',
+  gateway: 'ws://127.0.0.1:18789',
+  cronJobs: [
+    { name: 'Security Audit', schedule: 'täglich 06:00 Vienna', id: '8e10f87f' },
+    { name: 'Memory Consolidation', schedule: 'Sonntags 09:00 Vienna', id: 'b36f62df' },
+  ],
+  dashboards: [
+    { name: '💪 Fitness', url: 'https://stefan-fitness-dashboard-v2.onrender.com' },
+    { name: '📊 Portfolio', url: 'https://stefan-portfolio-dashboard-v2.onrender.com' },
+    { name: '✅ Tasks', url: 'https://stefan-tasks-dashboard-v2.onrender.com' },
+  ],
 }
 
 export default function OpenClawDashboard() {
-  // Authentication state
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  
-  const [data, setData] = useState(initialFallbackData)
-  const [currentTime, setCurrentTime] = useState('')
-  const [healthScore, setHealthScore] = useState(0)
-  const [lastRefresh, setLastRefresh] = useState(new Date())
-
-  // Show auth gate if not authenticated
-  if (!isAuthenticated) {
-    return (
-      <AuthGate 
-        onAuthenticated={() => setIsAuthenticated(true)}
-        dashboardName="🤖 Stefan's OpenClaw System Monitor"
-      />
-    )
-  }
-
-  // Refresh function for OpenClaw system data
-  const handleRefresh = async () => {
-    // Simulate system data fetch delay
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // In real app: fetch live OpenClaw metrics via API calls
-    // For demo: simulate realistic system changes
-    const cpuFluctuation = Math.max(5, Math.min(25, data.systemStatus.health.cpu + (Math.random() - 0.5) * 5))
-    const memoryFluctuation = Math.max(60, Math.min(80, data.systemStatus.health.memory + (Math.random() - 0.5) * 8))
-    
-    // Update system metrics
-    setData(prevData => ({
-      ...prevData,
-      systemStatus: {
-        ...prevData.systemStatus,
-        health: {
-          ...prevData.systemStatus.health,
-          cpu: Math.round(cpuFluctuation),
-          memory: Math.round(memoryFluctuation),
-          temp: Math.max(40, Math.min(50, prevData.systemStatus.health.temp + (Math.random() - 0.5) * 2))
-        },
-        agent: {
-          ...prevData.systemStatus.agent,
-          sessions: Math.max(1, prevData.systemStatus.agent.sessions + Math.floor((Math.random() - 0.7) * 2)),
-          cost_today: +(prevData.systemStatus.agent.cost_today + Math.random() * 0.1).toFixed(2)
-        }
-      },
-      todayActivity: {
-        ...prevData.todayActivity,
-        messages: prevData.todayActivity.messages + Math.floor(Math.random() * 3),
-        tool_calls: prevData.todayActivity.tool_calls + Math.floor(Math.random() * 5),
-        cron_jobs: prevData.todayActivity.cron_jobs + (Math.random() < 0.2 ? 1 : 0)
-      }
-    }))
-    
-    setHealthScore(systemHealthScore(data))
-    setLastRefresh(new Date())
-  }
+  const [time, setTime] = useState('')
+  const [refreshed, setRefreshed] = useState<string | null>(null)
 
   useEffect(() => {
-    const updateTime = () => {
-      setCurrentTime(new Date().toLocaleString('de-DE'))
-    }
-    setHealthScore(systemHealthScore(data))
-    updateTime()
-    const interval = setInterval(updateTime, 1000)
-    return () => clearInterval(interval)
-  }, [data])
+    const update = () => setTime(new Date().toLocaleString('de-AT', { timeZone: 'Europe/Vienna' }))
+    update()
+    const iv = setInterval(update, 1000)
+    return () => clearInterval(iv)
+  }, [])
+
+  const handleRefresh = () => {
+    setRefreshed(new Date().toLocaleTimeString('de-AT', { timeZone: 'Europe/Vienna' }))
+  }
 
   return (
     <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
-      padding: '2rem',
-      paddingBottom: '120px', // Space for refresh button
       color: '#f1f5f9',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      padding: '2rem',
+      paddingBottom: '6rem',
     }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-        
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+
         {/* Header */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{
-            fontSize: '3rem',
-            fontWeight: 'bold',
-            margin: 0,
-            background: 'linear-gradient(135deg, #06b6d4, #8b5cf6)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            marginBottom: '0.5rem'
-          }}>
-            🤖 Stefan's OpenClaw Dashboard
-          </h1>
-          <p style={{ color: '#94a3b8', fontSize: '1.1rem' }}>
-            ✅ System Online | {currentTime} | Health Score: {healthScore}/100 • Manual Refresh
-          </p>
-          
-          {/* Navigation */}
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '1rem' }}>
-            {[
-              { href: '/', label: '📊 Übersicht', active: true },
-              { href: '/gateway', label: '🌐 Gateway' },
-              { href: '/sessions', label: '💬 Sessions' },
-              { href: '/cron', label: '⏰ Cron' },
-              { href: '/performance', label: '📈 Performance' }
-            ].map((tab, index) => (
-              <Link key={index} href={tab.href} style={{
-                textDecoration: 'none',
-                padding: '0.75rem 1rem',
-                borderRadius: '8px',
-                background: tab.active ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-                color: '#f1f5f9',
-                border: tab.active ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid transparent',
-                transition: 'all 0.3s ease',
-                fontSize: '0.9rem'
-              }}>
-                {tab.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* System Status Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minWidth(250px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-          
-          {/* Gateway Status */}
-          <div style={{
-            background: 'rgba(34, 197, 94, 0.1)',
-            borderRadius: '16px',
-            padding: '1.5rem',
-            border: '1px solid rgba(34, 197, 94, 0.2)'
-          }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#22c55e', fontSize: '1.2rem' }}>🌐 Gateway</h3>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#22c55e', marginBottom: '0.5rem' }}>
-              {data.systemStatus.gateway.status}
+        <div style={{ ...CARD, marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 700 }}>🤖 OpenClaw System</h1>
+              <p style={{ margin: '0.25rem 0 0 0', color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>
+                {time}
+              </p>
             </div>
-            <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
-              PID {data.systemStatus.gateway.pid} • Port {data.systemStatus.gateway.port}
-            </div>
-            <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
-              Uptime: {data.systemStatus.gateway.uptime}
-            </div>
-          </div>
-
-          {/* Agent Status */}
-          <div style={{
-            background: 'rgba(59, 130, 246, 0.1)',
-            borderRadius: '16px',
-            padding: '1.5rem',
-            border: '1px solid rgba(59, 130, 246, 0.2)'
-          }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#3b82f6', fontSize: '1.2rem' }}>🧠 Agent</h3>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#3b82f6', marginBottom: '0.5rem' }}>
-              {data.systemStatus.agent.sessions} Sessions
-            </div>
-            <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
-              Model: {data.systemStatus.agent.model}
-            </div>
-            <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
-              Cost Today: €{data.systemStatus.agent.cost_today}
-            </div>
-          </div>
-
-          {/* System Health */}
-          <div style={{
-            background: 'rgba(139, 92, 246, 0.1)',
-            borderRadius: '16px',
-            padding: '1.5rem',
-            border: '1px solid rgba(139, 92, 246, 0.2)'
-          }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#8b5cf6', fontSize: '1.2rem' }}>💻 System</h3>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#8b5cf6', marginBottom: '0.5rem' }}>
-              {healthScore}/100
-            </div>
-            <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
-              CPU: {data.systemStatus.health.cpu}% • RAM: {data.systemStatus.health.memory}%
-            </div>
-            <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
-              Disk: {data.systemStatus.health.disk}% • Temp: {data.systemStatus.health.temp}°C
-            </div>
-          </div>
-
-          {/* Today's Activity */}
-          <div style={{
-            background: 'rgba(245, 158, 11, 0.1)',
-            borderRadius: '16px',
-            padding: '1.5rem',
-            border: '1px solid rgba(245, 158, 11, 0.2)'
-          }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#f59e0b', fontSize: '1.2rem' }}>📊 Activity</h3>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f59e0b', marginBottom: '0.5rem' }}>
-              {data.todayActivity.messages} Messages
-            </div>
-            <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
-              {data.todayActivity.tool_calls} Tool Calls • {data.todayActivity.cron_jobs} Cron Jobs
-            </div>
-            <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
-              Uptime: {data.todayActivity.uptime_percent}% • Errors: {data.todayActivity.errors}
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Sessions */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.1)',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          marginBottom: '2rem'
-        }}>
-          <h3 style={{ margin: '0 0 1.5rem 0', color: '#f59e0b', fontSize: '1.3rem' }}>📊 Recent Sessions</h3>
-          <div style={{ display: 'grid', gap: '1rem' }}>
-            {data.recentSessions.map((session, index) => (
-              <div key={index} style={{
-                padding: '1rem',
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderRadius: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>
-                    {session.id}
-                  </div>
-                  <div style={{
-                    padding: '0.25rem 0.75rem',
-                    borderRadius: '8px',
-                    fontSize: '0.8rem',
-                    background: session.status === 'active' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(156, 163, 175, 0.2)',
-                    color: session.status === 'active' ? '#22c55e' : '#9ca3af'
-                  }}>
-                    {session.status}
-                  </div>
-                </div>
-                <div style={{ fontSize: '0.9rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
-                  {session.type} • {session.duration}
-                </div>
-                <div style={{ fontSize: '0.9rem', color: '#06b6d4' }}>
-                  {session.messages} messages
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Cron Jobs Status */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.1)',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          marginBottom: '2rem'
-        }}>
-          <h3 style={{ margin: '0 0 1.5rem 0', color: '#a78bfa', fontSize: '1.3rem' }}>⏰ Cron Jobs Status</h3>
-          <div style={{ display: 'grid', gap: '1rem' }}>
-            {data.cronJobs.map((job, index) => (
-              <div key={index} style={{
-                padding: '1rem',
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderRadius: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '1rem', marginBottom: '0.25rem' }}>
-                      {job.name}
-                    </div>
-                    <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
-                      Next: {job.next_run}
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{
-                      padding: '0.25rem 0.75rem',
-                      borderRadius: '8px',
-                      fontSize: '0.8rem',
-                      background: job.status === 'active' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(156, 163, 175, 0.2)',
-                      color: job.status === 'active' ? '#22c55e' : '#9ca3af',
-                      marginBottom: '0.25rem'
-                    }}>
-                      {job.status}
-                    </div>
-                    <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                      {job.schedule}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+            <span style={BADGE_GREEN}>● Online</span>
           </div>
         </div>
 
         {/* System Info */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.1)',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          marginBottom: '2rem'
-        }}>
-          <h3 style={{ margin: '0 0 1.5rem 0', color: '#06b6d4', fontSize: '1.3rem' }}>🖥️ System Information</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minWidth(200px, 1fr))', gap: '1rem', textAlign: 'center' }}>
-            <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#06b6d4' }}>
-                {data.systemStatus.platform.os}
+        <div style={{ ...CARD }}>
+          <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>⚙️ System</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            {[
+              { label: 'Platform', val: STATIC.platform },
+              { label: 'Node', val: STATIC.node },
+              { label: 'OpenClaw', val: STATIC.openclaw },
+              { label: 'Modell', val: STATIC.model },
+              { label: 'Channel', val: STATIC.channel },
+            ].map(({ label, val }) => (
+              <div key={label}>
+                <div style={LABEL}>{label}</div>
+                <div style={VALUE}>{val}</div>
               </div>
-              <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>Operating System</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#22c55e' }}>
-                {data.systemStatus.platform.node}
-              </div>
-              <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>Node.js Version</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#8b5cf6' }}>
-                {data.systemStatus.platform.openclaw}
-              </div>
-              <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>OpenClaw Version</div>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Refresh Button */}
-        <RefreshButton
-          onRefresh={handleRefresh}
-          icon="🤖"
-          label="System laden"
-          lastUpdate={lastRefresh}
-          size="large"
-        />
-
-        {/* Footer */}
-        <div style={{
-          textAlign: 'center',
-          color: '#64748b',
-          fontSize: '0.9rem',
-          padding: '1rem'
-        }}>
-          🤖 OpenClaw System Dashboard | Manual Refresh | Stefan's Real-Time Monitoring ✨
+        {/* Cron Jobs */}
+        <div style={{ ...CARD }}>
+          <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>⏱️ Cron Jobs</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {STATIC.cronJobs.map(job => (
+              <div key={job.id} style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                flexWrap: 'wrap', gap: '0.5rem',
+                padding: '0.75rem 1rem',
+                background: 'rgba(255,255,255,0.04)',
+                borderRadius: '10px',
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}>
+                <div>
+                  <div style={{ fontWeight: 600 }}>{job.name}</div>
+                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem' }}>{job.schedule}</div>
+                </div>
+                <span style={BADGE_GREEN}>aktiv</span>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Dashboards */}
+        <div style={{ ...CARD }}>
+          <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>🔗 Dashboards</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {STATIC.dashboards.map(d => (
+              <a key={d.url} href={d.url} target="_blank" rel="noopener noreferrer" style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '0.75rem 1rem',
+                background: 'rgba(255,255,255,0.04)',
+                borderRadius: '10px',
+                border: '1px solid rgba(255,255,255,0.08)',
+                color: '#f1f5f9',
+                textDecoration: 'none',
+                transition: 'background 0.2s',
+              }}>
+                <span style={{ fontWeight: 600 }}>{d.name}</span>
+                <span style={{ color: '#60a5fa', fontSize: '0.85rem' }}>{d.url.replace('https://', '')} ↗</span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Info Box */}
+        <div style={{ ...CARD, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
+          <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', lineHeight: 1.6 }}>
+            ℹ️ Live-Metriken (CPU, RAM, Sessions) sind nur über die lokale OpenClaw API verfügbar.
+            Dieses Dashboard zeigt Konfiguration und Links. Für Live-Status → Telegram Bot <strong>@SGUButler_bot</strong>.
+          </p>
+        </div>
+
+        {/* Last refresh */}
+        {refreshed && (
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem' }}>
+            Zuletzt aktualisiert: {refreshed}
+          </p>
+        )}
       </div>
+
+      {/* Refresh Button */}
+      <button
+        onClick={handleRefresh}
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          width: '64px',
+          height: '64px',
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+          color: 'white',
+          border: 'none',
+          fontSize: '1.5rem',
+          cursor: 'pointer',
+          boxShadow: '0 4px 20px rgba(59,130,246,0.4)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        title="Aktualisieren"
+      >
+        🔄
+      </button>
     </div>
   )
 }
