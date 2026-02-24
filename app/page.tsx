@@ -140,6 +140,22 @@ export default function OpenClawDashboard() {
           </div>
         </div>
 
+        {/* Performance Link */}
+        <div style={{ ...CARD }}>
+          <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>📈 Performance</h2>
+          <a href="/performance" style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '0.75rem 1rem',
+            background: 'rgba(255,255,255,0.04)',
+            borderRadius: '10px',
+            border: '1px solid rgba(255,255,255,0.08)',
+            color: '#f1f5f9', textDecoration: 'none',
+          }}>
+            <span style={{ fontWeight: 600 }}>CPU · Memory · Disk · Load</span>
+            <span style={{ color: '#60a5fa', fontSize: '0.85rem' }}>Details ↗</span>
+          </a>
+        </div>
+
         {/* Dashboards */}
         <div style={{ ...CARD }}>
           <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>🔗 Dashboards</h2>
