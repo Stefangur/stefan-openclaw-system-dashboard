@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 const CARD: React.CSSProperties = {
   background: 'rgba(255,255,255,0.07)',
@@ -34,23 +35,16 @@ const BADGE_GREEN: React.CSSProperties = {
   fontWeight: 600,
 }
 
-const BADGE_GRAY: React.CSSProperties = {
-  ...BADGE_GREEN,
-  background: 'rgba(148,163,184,0.2)',
-  color: '#94a3b8',
-}
-
-// Static system info — live data would require OpenClaw API access from Render
 const STATIC = {
   platform: 'macOS 26.3 (arm64)',
   node: 'v22.22.0',
   openclaw: '2026.2.22-2',
   model: 'claude-haiku-4.5',
   channel: 'Telegram (@SGUButler_bot)',
-  gateway: 'ws://127.0.0.1:18789',
   cronJobs: [
     { name: 'Security Audit', schedule: 'täglich 06:00 Vienna', id: '8e10f87f' },
     { name: 'Memory Consolidation', schedule: 'Sonntags 09:00 Vienna', id: 'b36f62df' },
+    { name: 'System Metrics Push', schedule: 'alle 10 Minuten', id: 'cfc8b0d3' },
   ],
   dashboards: [
     { name: '💪 Fitness', url: 'https://stefan-fitness-dashboard-v2.onrender.com' },
@@ -59,9 +53,38 @@ const STATIC = {
   ],
 }
 
+const TABS = [
+  { key: 'overview', label: '🤖 Übersicht', href: '/' },
+  { key: 'performance', label: '📈 Performance', href: '/performance' },
+]
+
+function NavTabs({ active }: { active: string }) {
+  return (
+    <div style={{
+      display: 'flex', gap: '0.5rem', flexWrap: 'wrap',
+      marginBottom: '1.5rem',
+    }}>
+      {TABS.map(tab => (
+        <Link key={tab.key} href={tab.href} style={{
+          padding: '0.6rem 1.2rem',
+          borderRadius: '10px',
+          border: '1px solid rgba(255,255,255,0.15)',
+          background: active === tab.key ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.07)',
+          color: active === tab.key ? '#fff' : 'rgba(255,255,255,0.6)',
+          textDecoration: 'none',
+          fontSize: '0.9rem',
+          fontWeight: active === tab.key ? 700 : 400,
+          transition: 'all 0.2s',
+        }}>
+          {tab.label}
+        </Link>
+      ))}
+    </div>
+  )
+}
+
 export default function OpenClawDashboard() {
   const [time, setTime] = useState('')
-  const [refreshed, setRefreshed] = useState<string | null>(null)
 
   useEffect(() => {
     const update = () => setTime(new Date().toLocaleString('de-AT', { timeZone: 'Europe/Vienna' }))
@@ -69,10 +92,6 @@ export default function OpenClawDashboard() {
     const iv = setInterval(update, 1000)
     return () => clearInterval(iv)
   }, [])
-
-  const handleRefresh = () => {
-    setRefreshed(new Date().toLocaleTimeString('de-AT', { timeZone: 'Europe/Vienna' }))
-  }
 
   return (
     <div style={{
@@ -90,16 +109,17 @@ export default function OpenClawDashboard() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 700 }}>🤖 OpenClaw System</h1>
-              <p style={{ margin: '0.25rem 0 0 0', color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>
-                {time}
-              </p>
+              <p style={{ margin: '0.25rem 0 0 0', color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>{time}</p>
             </div>
             <span style={BADGE_GREEN}>● Online</span>
           </div>
         </div>
 
+        {/* Nav Tabs */}
+        <NavTabs active="overview" />
+
         {/* System Info */}
-        <div style={{ ...CARD }}>
+        <div style={CARD}>
           <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>⚙️ System</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
             {[
@@ -118,7 +138,7 @@ export default function OpenClawDashboard() {
         </div>
 
         {/* Cron Jobs */}
-        <div style={{ ...CARD }}>
+        <div style={CARD}>
           <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>⏱️ Cron Jobs</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {STATIC.cronJobs.map(job => (
@@ -140,24 +160,8 @@ export default function OpenClawDashboard() {
           </div>
         </div>
 
-        {/* Performance Link */}
-        <div style={{ ...CARD }}>
-          <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>📈 Performance</h2>
-          <a href="/performance" style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '0.75rem 1rem',
-            background: 'rgba(255,255,255,0.04)',
-            borderRadius: '10px',
-            border: '1px solid rgba(255,255,255,0.08)',
-            color: '#f1f5f9', textDecoration: 'none',
-          }}>
-            <span style={{ fontWeight: 600 }}>CPU · Memory · Disk · Load</span>
-            <span style={{ color: '#60a5fa', fontSize: '0.85rem' }}>Details ↗</span>
-          </a>
-        </div>
-
         {/* Dashboards */}
-        <div style={{ ...CARD }}>
+        <div style={CARD}>
           <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>🔗 Dashboards</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {STATIC.dashboards.map(d => (
@@ -167,9 +171,7 @@ export default function OpenClawDashboard() {
                 background: 'rgba(255,255,255,0.04)',
                 borderRadius: '10px',
                 border: '1px solid rgba(255,255,255,0.08)',
-                color: '#f1f5f9',
-                textDecoration: 'none',
-                transition: 'background 0.2s',
+                color: '#f1f5f9', textDecoration: 'none',
               }}>
                 <span style={{ fontWeight: 600 }}>{d.name}</span>
                 <span style={{ color: '#60a5fa', fontSize: '0.85rem' }}>{d.url.replace('https://', '')} ↗</span>
@@ -178,46 +180,14 @@ export default function OpenClawDashboard() {
           </div>
         </div>
 
-        {/* Info Box */}
+        {/* Info */}
         <div style={{ ...CARD, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
           <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', lineHeight: 1.6 }}>
-            ℹ️ Live-Metriken (CPU, RAM, Sessions) sind nur über die lokale OpenClaw API verfügbar.
-            Dieses Dashboard zeigt Konfiguration und Links. Für Live-Status → Telegram Bot <strong>@SGUButler_bot</strong>.
+            ℹ️ Live-Metriken via <strong>📈 Performance</strong> Tab. Für direkten Kontakt → Telegram <strong>@SGUButler_bot</strong>
           </p>
         </div>
 
-        {/* Last refresh */}
-        {refreshed && (
-          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem' }}>
-            Zuletzt aktualisiert: {refreshed}
-          </p>
-        )}
       </div>
-
-      {/* Refresh Button */}
-      <button
-        onClick={handleRefresh}
-        style={{
-          position: 'fixed',
-          bottom: '2rem',
-          right: '2rem',
-          width: '64px',
-          height: '64px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-          color: 'white',
-          border: 'none',
-          fontSize: '1.5rem',
-          cursor: 'pointer',
-          boxShadow: '0 4px 20px rgba(59,130,246,0.4)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-        title="Aktualisieren"
-      >
-        🔄
-      </button>
     </div>
   )
 }

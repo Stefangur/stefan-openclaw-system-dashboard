@@ -20,6 +20,33 @@ const LABEL: React.CSSProperties = {
   letterSpacing: '0.05em',
 }
 
+const TABS = [
+  { key: 'overview', label: '🤖 Übersicht', href: '/' },
+  { key: 'performance', label: '📈 Performance', href: '/performance' },
+]
+
+function NavTabs({ active }: { active: string }) {
+  return (
+    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+      {TABS.map(tab => (
+        <Link key={tab.key} href={tab.href} style={{
+          padding: '0.6rem 1.2rem',
+          borderRadius: '10px',
+          border: '1px solid rgba(255,255,255,0.15)',
+          background: active === tab.key ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.07)',
+          color: active === tab.key ? '#fff' : 'rgba(255,255,255,0.6)',
+          textDecoration: 'none',
+          fontSize: '0.9rem',
+          fontWeight: active === tab.key ? 700 : 400,
+          transition: 'all 0.2s',
+        }}>
+          {tab.label}
+        </Link>
+      ))}
+    </div>
+  )
+}
+
 interface Metric {
   timestamp: string
   cpu_percent: number
@@ -34,16 +61,12 @@ interface Metric {
   load_15m: number
 }
 
-function GaugeBar({ value, max = 100, color }: { value: number; max?: number; color: string }) {
-  const pct = Math.min((value / max) * 100, 100)
+function GaugeBar({ value, color }: { value: number; color: string }) {
   return (
     <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '999px', height: '8px', overflow: 'hidden' }}>
       <div style={{
-        width: `${pct}%`,
-        height: '100%',
-        background: color,
-        borderRadius: '999px',
-        transition: 'width 0.5s ease',
+        width: `${Math.min(value, 100)}%`, height: '100%',
+        background: color, borderRadius: '999px', transition: 'width 0.5s ease',
       }} />
     </div>
   )
@@ -95,16 +118,16 @@ export default function PerformancePage() {
     }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
-        {/* Back + Header */}
+        {/* Header */}
         <div style={{ ...CARD, marginBottom: '1.5rem' }}>
-          <Link href="/" style={{ color: '#60a5fa', textDecoration: 'none', fontSize: '1.1rem', fontWeight: 500 }}>
-            ← Zurück zur Übersicht
-          </Link>
-          <h1 style={{ margin: '0.75rem 0 0.25rem 0', fontSize: '1.8rem', fontWeight: 700 }}>📈 Performance</h1>
+          <h1 style={{ margin: '0 0 0.25rem 0', fontSize: '1.8rem', fontWeight: 700 }}>🤖 OpenClaw System</h1>
           <p style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem' }}>
-            VM Metriken • alle 10 Min aktualisiert{lastRefresh ? ` • Stand: ${lastRefresh}` : ''}
+            VM Metriken • alle 10 Min{lastRefresh ? ` • Stand: ${lastRefresh}` : ''}
           </p>
         </div>
+
+        {/* Nav Tabs */}
+        <NavTabs active="performance" />
 
         {loading && (
           <div style={{ ...CARD, textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>Lade Metriken…</div>
@@ -119,10 +142,9 @@ export default function PerformancePage() {
         {latest && (
           <>
             {/* Live Gauges */}
-            <div style={{ ...CARD }}>
+            <div style={CARD}>
               <h2 style={{ margin: '0 0 1.25rem 0', fontSize: '1rem', color: '#60a5fa' }}>⚡ Aktuell</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-                {/* CPU */}
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                     <span style={LABEL}>CPU</span>
@@ -133,7 +155,6 @@ export default function PerformancePage() {
                     Load: {latest.load_1m} / {latest.load_5m} / {latest.load_15m}
                   </div>
                 </div>
-                {/* Memory */}
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                     <span style={LABEL}>Memory</span>
@@ -144,7 +165,6 @@ export default function PerformancePage() {
                     {latest.memory_used_mb} MB / {latest.memory_total_mb} MB
                   </div>
                 </div>
-                {/* Disk */}
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                     <span style={LABEL}>Disk</span>
@@ -159,7 +179,7 @@ export default function PerformancePage() {
             </div>
 
             {/* History */}
-            <div style={{ ...CARD }}>
+            <div style={CARD}>
               <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>📊 Verlauf (letzte {metrics.length} Messwerte)</h2>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
