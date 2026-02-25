@@ -164,17 +164,10 @@ export default function OpenClawDashboard() {
           </div>
         </div>
 
-        {/* Info */}
-        <div style={{ ...CARD, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
-          <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', lineHeight: 1.6 }}>
-            ℹ️ Live-Metriken via <strong>📈 Performance</strong> Tab. Für direkten Kontakt → Telegram <strong>@SGUButler_bot</strong>
-          </p>
-        </div>
-
-        {/* Footer — All Dashboards */}
+        {/* Dashboards — All Dashboards */}
         <div style={{
-          marginTop: '3rem',
-          paddingTop: '2rem',
+          marginTop: '1.5rem',
+          paddingTop: '1.5rem',
           borderTop: '1px solid rgba(255,255,255,0.1)',
           textAlign: 'center',
         }}>
@@ -183,7 +176,7 @@ export default function OpenClawDashboard() {
           </h3>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
             gap: '0.75rem',
           }}>
             {STATIC.dashboards.map(d => (
@@ -194,7 +187,7 @@ export default function OpenClawDashboard() {
                 border: '1px solid rgba(255,255,255,0.1)',
                 color: '#60a5fa',
                 textDecoration: 'none',
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 fontWeight: 600,
                 transition: 'all 0.2s',
                 cursor: 'pointer',
@@ -210,11 +203,11 @@ export default function OpenClawDashboard() {
             ))}
           </div>
           <div style={{
-            marginTop: '1.5rem',
-            fontSize: '0.75rem',
-            color: 'rgba(255,255,255,0.3)',
+            marginTop: '1rem',
+            fontSize: '0.7rem',
+            color: 'rgba(255,255,255,0.25)',
           }}>
-            OpenClaw System Dashboard — {new Date().getFullYear()}
+            ℹ️ Live-Metriken via <strong>📈 Performance</strong> Tab
           </div>
         </div>
 
