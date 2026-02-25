@@ -47,6 +47,7 @@ const STATIC = {
     { name: 'System Metrics Push', schedule: 'alle 10 Minuten', id: 'cfc8b0d3' },
   ],
   dashboards: [
+    { name: '🏠 Hub', url: 'https://sgu-dashboard-hub.onrender.com' },
     { name: '💪 Fitness', url: 'https://stefan-fitness-dashboard-v2.onrender.com' },
     { name: '📊 Portfolio', url: 'https://stefan-portfolio-dashboard-v2.onrender.com' },
     { name: '✅ Tasks', url: 'https://stefan-tasks-dashboard-v2.onrender.com' },
@@ -185,6 +186,53 @@ export default function OpenClawDashboard() {
           <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', lineHeight: 1.6 }}>
             ℹ️ Live-Metriken via <strong>📈 Performance</strong> Tab. Für direkten Kontakt → Telegram <strong>@SGUButler_bot</strong>
           </p>
+        </div>
+
+        {/* Footer — All Dashboards */}
+        <div style={{
+          marginTop: '3rem',
+          paddingTop: '2rem',
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+          textAlign: 'center',
+        }}>
+          <h3 style={{ margin: '0 0 1rem 0', fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            🌐 Stefan's Dashboards
+          </h3>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+            gap: '0.75rem',
+          }}>
+            {STATIC.dashboards.map(d => (
+              <a key={d.url} href={d.url} target="_blank" rel="noopener noreferrer" style={{
+                padding: '0.75rem',
+                background: 'rgba(255,255,255,0.06)',
+                borderRadius: '8px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#60a5fa',
+                textDecoration: 'none',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                transition: 'all 0.2s',
+                cursor: 'pointer',
+              }} onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.12)'
+                e.currentTarget.style.borderColor = 'rgba(96,165,250,0.5)'
+              }} onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
+              }}>
+                {d.name}
+              </a>
+            ))}
+          </div>
+          <div style={{
+            marginTop: '1.5rem',
+            fontSize: '0.75rem',
+            color: 'rgba(255,255,255,0.3)',
+          }}>
+            OpenClaw System Dashboard — {new Date().getFullYear()}
+          </div>
         </div>
 
       </div>
