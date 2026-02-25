@@ -108,6 +108,11 @@ export default function OpenClawDashboard() {
     }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
+        {/* Back Button */}
+        <Link href="/" style={{ color: '#60a5fa', textDecoration: 'none', fontSize: '0.9rem', display: 'inline-block', marginBottom: '1rem' }}>
+          ← Zurück zur Übersicht
+        </Link>
+
         {/* Header */}
         <div style={{ ...CARD, marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>

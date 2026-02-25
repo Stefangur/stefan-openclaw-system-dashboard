@@ -118,6 +118,11 @@ export default function PerformancePage() {
     }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
+        {/* Back Button */}
+        <Link href="/" style={{ color: '#60a5fa', textDecoration: 'none', fontSize: '0.9rem', display: 'inline-block', marginBottom: '1rem' }}>
+          ← Zurück zur Übersicht
+        </Link>
+
         {/* Header */}
         <div style={{ ...CARD, marginBottom: '1.5rem' }}>
           <h1 style={{ margin: '0 0 0.25rem 0', fontSize: '1.8rem', fontWeight: 700 }}>🤖 OpenClaw System</h1>
