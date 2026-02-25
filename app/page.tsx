@@ -51,6 +51,9 @@ const STATIC = {
     { name: '💪 Fitness', url: 'https://stefan-fitness-dashboard-v2.onrender.com' },
     { name: '📊 Portfolio', url: 'https://stefan-portfolio-dashboard-v2.onrender.com' },
     { name: '✅ Tasks', url: 'https://stefan-tasks-dashboard-v2.onrender.com' },
+    { name: '🌍 Aktuelles', url: 'https://sgu-dashboard-hub.onrender.com/aktuelles' },
+    { name: '⛰️ Pellendorf', url: 'https://sgu-dashboard-hub.onrender.com/pellendorf' },
+    { name: '🏔️ Maishofen', url: 'https://sgu-dashboard-hub.onrender.com/maishofen' },
   ],
 }
 
@@ -157,26 +160,6 @@ export default function OpenClawDashboard() {
                 </div>
                 <span style={BADGE_GREEN}>aktiv</span>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Dashboards */}
-        <div style={CARD}>
-          <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>🔗 Dashboards</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {STATIC.dashboards.map(d => (
-              <a key={d.url} href={d.url} target="_blank" rel="noopener noreferrer" style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '0.75rem 1rem',
-                background: 'rgba(255,255,255,0.04)',
-                borderRadius: '10px',
-                border: '1px solid rgba(255,255,255,0.08)',
-                color: '#f1f5f9', textDecoration: 'none',
-              }}>
-                <span style={{ fontWeight: 600 }}>{d.name}</span>
-                <span style={{ color: '#60a5fa', fontSize: '0.85rem' }}>{d.url.replace('https://', '')} ↗</span>
-              </a>
             ))}
           </div>
         </div>
