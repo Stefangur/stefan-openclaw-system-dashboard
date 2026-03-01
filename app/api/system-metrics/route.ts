@@ -3,8 +3,20 @@ import { createClient } from '@libsql/client'
 
 export async function GET() {
   try {
+    // Validate env vars exist
+    if (!process.env.TURSO_DATABASE_URL || !process.env.TURSO_AUTH_TOKEN) {
+      console.error('❌ Missing TURSO env vars:', {
+        url: process.env.TURSO_DATABASE_URL ? '✓' : '✗',
+        token: process.env.TURSO_AUTH_TOKEN ? '✓' : '✗'
+      })
+      return NextResponse.json(
+        { success: false, error: 'Database not configured. Missing TURSO env vars.' },
+        { status: 503 }
+      )
+    }
+
     const turso = createClient({
-      url: process.env.TURSO_DATABASE_URL || 'libsql://stefan-portfolio-stefangur.aws-eu-west-1.turso.io',
+      url: process.env.TURSO_DATABASE_URL,
       authToken: process.env.TURSO_AUTH_TOKEN,
     })
 
