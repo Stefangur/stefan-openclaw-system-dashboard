@@ -140,7 +140,12 @@ export default function PerformancePage() {
 
         {error && (
           <div style={{ ...CARD, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)' }}>
-            ❌ {error}
+            <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>❌ {error}</div>
+            {error.includes('Database not configured') && (
+              <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginTop: '0.5rem' }}>
+                <strong>Setup erforderlich:</strong> Render Env-Vars setzen. Siehe SETUP.md
+              </div>
+            )}
           </div>
         )}
 
