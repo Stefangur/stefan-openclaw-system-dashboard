@@ -90,7 +90,7 @@ export default async function PerformancePage() {
   let error: string | null = null
 
   try {
-    const res = await fetch('http://localhost:3000/api/system-metrics', {
+    const res = await fetch('/api/system-metrics', {
       cache: 'no-store',
     })
     
