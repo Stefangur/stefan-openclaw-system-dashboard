@@ -47,18 +47,25 @@ function NavTabs({ active }: { active: string }) {
   )
 }
 
-interface Metric {
-  timestamp: string
+interface HostMetrics {
   cpu_percent: number
-  memory_percent: number
-  memory_used_mb: number
-  memory_total_mb: number
+  ram_percent: number
   disk_percent: number
-  disk_used_gb: number
-  disk_total_gb: number
-  load_1m: number
-  load_5m: number
-  load_15m: number
+  uptime_days: number
+}
+
+interface ApiMetrics {
+  requests_24h: number
+  avg_response_ms: number
+  errors_24h: number
+  error_rate_percent: number
+}
+
+interface OpenClawStats {
+  sessions: number
+  tokens_used: string
+  total_runtime: string
+  status: string
 }
 
 function GaugeBar({ value, color }: { value: number; color: string }) {
@@ -79,7 +86,9 @@ function statusColor(pct: number) {
 }
 
 export default function PerformancePage() {
-  const [metrics, setMetrics] = useState<Metric[]>([])
+  const [host, setHost] = useState<HostMetrics | null>(null)
+  const [api, setApi] = useState<ApiMetrics | null>(null)
+  const [openclaw, setOpenClaw] = useState<OpenClawStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastRefresh, setLastRefresh] = useState('')
@@ -90,22 +99,28 @@ export default function PerformancePage() {
     try {
       const res = await fetch('/api/system-metrics', { cache: 'no-store' })
       const data = await res.json()
-      if (data.success) {
-        setMetrics(data.metrics)
+      console.log('✅ API Response received:', { status: res.status, hasHost: !!data.host, hasApi: !!data.api, hasOpenClaw: !!data.openclaw })
+      
+      if (!res.ok) {
+        setError(`API Error (${res.status}): ${data.error || 'Unbekannt'}`)
+      } else if (data.host && data.api && data.openclaw) {
+        setHost(data.host)
+        setApi(data.api)
+        setOpenClaw(data.openclaw)
         setLastRefresh(new Date().toLocaleTimeString('de-AT', { timeZone: 'Europe/Vienna' }))
       } else {
-        setError(data.error || 'Fehler beim Laden')
+        console.error('❌ Invalid response structure:', data)
+        setError('Ungültige API-Antwort: fehlende Felder (host/api/openclaw)')
       }
     } catch (e: any) {
-      setError(e.message)
+      console.error('❌ Fetch error:', e)
+      setError(`Fehler: ${e.message}`)
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => { load() }, [])
-
-  const latest = metrics[0]
 
   return (
     <div style={{
@@ -127,7 +142,7 @@ export default function PerformancePage() {
         <div style={{ ...CARD, marginBottom: '1.5rem' }}>
           <h1 style={{ margin: '0 0 0.25rem 0', fontSize: '1.8rem', fontWeight: 700 }}>🤖 OpenClaw System</h1>
           <p style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem' }}>
-            VM Metriken • alle 10 Min{lastRefresh ? ` • Stand: ${lastRefresh}` : ''}
+            System Performance • {lastRefresh ? `Stand: ${lastRefresh}` : 'Lädt…'}
           </p>
         </div>
 
@@ -135,88 +150,107 @@ export default function PerformancePage() {
         <NavTabs active="performance" />
 
         {loading && (
-          <div style={{ ...CARD, textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>Lade Metriken…</div>
+          <div style={{ ...CARD, textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>⏳ Lade Metriken…</div>
         )}
 
         {error && (
           <div style={{ ...CARD, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)' }}>
             <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>❌ {error}</div>
-            {error.includes('Database not configured') && (
-              <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginTop: '0.5rem' }}>
-                <strong>Setup erforderlich:</strong> Render Env-Vars setzen. Siehe SETUP.md
-              </div>
-            )}
           </div>
         )}
 
-        {latest && (
+        {host && (
           <>
             {/* Live Gauges */}
             <div style={CARD}>
-              <h2 style={{ margin: '0 0 1.25rem 0', fontSize: '1rem', color: '#60a5fa' }}>⚡ Aktuell</h2>
+              <h2 style={{ margin: '0 0 1.25rem 0', fontSize: '1rem', color: '#60a5fa' }}>⚡ Host Ressourcen</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                     <span style={LABEL}>CPU</span>
-                    <span style={{ fontWeight: 700, color: statusColor(latest.cpu_percent) }}>{latest.cpu_percent}%</span>
+                    <span style={{ fontWeight: 700, color: statusColor(host.cpu_percent) }}>{host.cpu_percent}%</span>
                   </div>
-                  <GaugeBar value={latest.cpu_percent} color={statusColor(latest.cpu_percent)} />
-                  <div style={{ marginTop: '0.5rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>
-                    Load: {latest.load_1m} / {latest.load_5m} / {latest.load_15m}
-                  </div>
+                  <GaugeBar value={host.cpu_percent} color={statusColor(host.cpu_percent)} />
                 </div>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <span style={LABEL}>Memory</span>
-                    <span style={{ fontWeight: 700, color: statusColor(latest.memory_percent) }}>{latest.memory_percent}%</span>
+                    <span style={LABEL}>RAM</span>
+                    <span style={{ fontWeight: 700, color: statusColor(host.ram_percent) }}>{host.ram_percent}%</span>
                   </div>
-                  <GaugeBar value={latest.memory_percent} color={statusColor(latest.memory_percent)} />
-                  <div style={{ marginTop: '0.5rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>
-                    {latest.memory_used_mb} MB / {latest.memory_total_mb} MB
-                  </div>
+                  <GaugeBar value={host.ram_percent} color={statusColor(host.ram_percent)} />
                 </div>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                     <span style={LABEL}>Disk</span>
-                    <span style={{ fontWeight: 700, color: statusColor(latest.disk_percent) }}>{latest.disk_percent}%</span>
+                    <span style={{ fontWeight: 700, color: statusColor(host.disk_percent) }}>{host.disk_percent}%</span>
                   </div>
-                  <GaugeBar value={latest.disk_percent} color={statusColor(latest.disk_percent)} />
-                  <div style={{ marginTop: '0.5rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>
-                    {latest.disk_used_gb} GB / {latest.disk_total_gb} GB
+                  <GaugeBar value={host.disk_percent} color={statusColor(host.disk_percent)} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <span style={LABEL}>Uptime</span>
+                    <span style={{ fontWeight: 700, color: '#60a5fa' }}>{host.uptime_days.toFixed(1)} d</span>
                   </div>
+                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>Tage aktiv</div>
                 </div>
               </div>
             </div>
 
-            {/* History */}
-            <div style={CARD}>
-              <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>📊 Verlauf (letzte {metrics.length} Messwerte)</h2>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                  <thead>
-                    <tr style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'left' }}>
-                      {['Zeit', 'CPU %', 'RAM %', 'RAM MB', 'Disk %', 'Load 1m'].map(h => (
-                        <th key={h} style={{ padding: '0.4rem 0.75rem', borderBottom: '1px solid rgba(255,255,255,0.08)', whiteSpace: 'nowrap' }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {metrics.slice(0, 20).map((m, i) => (
-                      <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                        <td style={{ padding: '0.4rem 0.75rem', color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap' }}>
-                          {new Date(m.timestamp).toLocaleTimeString('de-AT', { timeZone: 'Europe/Vienna', hour: '2-digit', minute: '2-digit' })}
-                        </td>
-                        <td style={{ padding: '0.4rem 0.75rem', color: statusColor(m.cpu_percent), fontWeight: 600 }}>{m.cpu_percent}%</td>
-                        <td style={{ padding: '0.4rem 0.75rem', color: statusColor(m.memory_percent), fontWeight: 600 }}>{m.memory_percent}%</td>
-                        <td style={{ padding: '0.4rem 0.75rem' }}>{m.memory_used_mb}</td>
-                        <td style={{ padding: '0.4rem 0.75rem', color: statusColor(m.disk_percent) }}>{m.disk_percent}%</td>
-                        <td style={{ padding: '0.4rem 0.75rem' }}>{m.load_1m}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {/* API Performance */}
+            {api && (
+              <div style={CARD}>
+                <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>📡 API Performance (24h)</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                  <div>
+                    <span style={LABEL}>Requests</span>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{api.requests_24h}</div>
+                  </div>
+                  <div>
+                    <span style={LABEL}>Ø Response</span>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{api.avg_response_ms}ms</div>
+                  </div>
+                  <div>
+                    <span style={LABEL}>Errors</span>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 700, color: api.errors_24h > 0 ? '#ef4444' : '#4ade80' }}>
+                      {api.errors_24h}
+                    </div>
+                  </div>
+                  <div>
+                    <span style={LABEL}>Error Rate</span>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 700, color: statusColor(api.error_rate_percent) }}>
+                      {api.error_rate_percent}%
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* OpenClaw Stats */}
+            {openclaw && (
+              <div style={CARD}>
+                <h2 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#60a5fa' }}>🔧 OpenClaw Status</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                  <div>
+                    <span style={LABEL}>Status</span>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 700, color: openclaw.status === 'available' ? '#4ade80' : '#fbbf24' }}>
+                      {openclaw.status}
+                    </div>
+                  </div>
+                  <div>
+                    <span style={LABEL}>Sessions</span>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{openclaw.sessions}</div>
+                  </div>
+                  <div>
+                    <span style={LABEL}>Tokens Used</span>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>{openclaw.tokens_used}</div>
+                  </div>
+                  <div>
+                    <span style={LABEL}>Runtime</span>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>{openclaw.total_runtime}</div>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
 
