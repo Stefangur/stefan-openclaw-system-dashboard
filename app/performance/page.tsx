@@ -1,6 +1,3 @@
-'use client'
-
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 const CARD: React.CSSProperties = {
@@ -85,42 +82,31 @@ function statusColor(pct: number) {
   return '#ef4444'
 }
 
-export default function PerformancePage() {
-  const [host, setHost] = useState<HostMetrics | null>(null)
-  const [api, setApi] = useState<ApiMetrics | null>(null)
-  const [openclaw, setOpenClaw] = useState<OpenClawStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [lastRefresh, setLastRefresh] = useState('')
+// SERVER COMPONENT: Fetch data at build time
+export default async function PerformancePage() {
+  let host: HostMetrics | null = null
+  let api: ApiMetrics | null = null
+  let openclaw: OpenClawStats | null = null
+  let error: string | null = null
 
-  const load = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const res = await fetch('/api/system-metrics', { cache: 'no-store' })
+  try {
+    const res = await fetch('http://localhost:3000/api/system-metrics', {
+      cache: 'no-store',
+    })
+    
+    if (res.ok) {
       const data = await res.json()
-      console.log('✅ API Response received:', { status: res.status, hasHost: !!data.host, hasApi: !!data.api, hasOpenClaw: !!data.openclaw })
-      
-      if (!res.ok) {
-        setError(`API Error (${res.status}): ${data.error || 'Unbekannt'}`)
-      } else if (data.host && data.api && data.openclaw) {
-        setHost(data.host)
-        setApi(data.api)
-        setOpenClaw(data.openclaw)
-        setLastRefresh(new Date().toLocaleTimeString('de-AT', { timeZone: 'Europe/Vienna' }))
-      } else {
-        console.error('❌ Invalid response structure:', data)
-        setError('Ungültige API-Antwort: fehlende Felder (host/api/openclaw)')
-      }
-    } catch (e: any) {
-      console.error('❌ Fetch error:', e)
-      setError(`Fehler: ${e.message}`)
-    } finally {
-      setLoading(false)
+      host = data.host || null
+      api = data.api || null
+      openclaw = data.openclaw || null
+    } else {
+      error = `API Error (${res.status})`
     }
+  } catch (e: any) {
+    error = `Fehler: ${e.message}`
   }
 
-  useEffect(() => { load() }, [])
+  const lastRefresh = new Date().toLocaleTimeString('de-AT', { timeZone: 'Europe/Vienna' })
 
   return (
     <div style={{
@@ -142,16 +128,12 @@ export default function PerformancePage() {
         <div style={{ ...CARD, marginBottom: '1.5rem' }}>
           <h1 style={{ margin: '0 0 0.25rem 0', fontSize: '1.8rem', fontWeight: 700 }}>🤖 OpenClaw System</h1>
           <p style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem' }}>
-            System Performance • {lastRefresh ? `Stand: ${lastRefresh}` : 'Lädt…'}
+            System Performance • Stand: {lastRefresh}
           </p>
         </div>
 
         {/* Nav Tabs */}
         <NavTabs active="performance" />
-
-        {loading && (
-          <div style={{ ...CARD, textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>⏳ Lade Metriken…</div>
-        )}
 
         {error && (
           <div style={{ ...CARD, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)' }}>
@@ -253,16 +235,6 @@ export default function PerformancePage() {
             )}
           </>
         )}
-
-        {/* Refresh */}
-        <button onClick={load} style={{
-          position: 'fixed', bottom: '2rem', right: '2rem',
-          width: '64px', height: '64px', borderRadius: '50%',
-          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-          color: 'white', border: 'none', fontSize: '1.5rem',
-          cursor: 'pointer', boxShadow: '0 4px 20px rgba(59,130,246,0.4)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>🔄</button>
       </div>
     </div>
   )
