@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { GET } from '@/app/api/system-metrics/route'
 
 const CARD: React.CSSProperties = {
   background: 'rgba(255,255,255,0.07)',
@@ -82,7 +83,7 @@ function statusColor(pct: number) {
   return '#ef4444'
 }
 
-// SERVER COMPONENT: Fetch data at build time
+// SERVER COMPONENT: Fetch data directly from API route
 export default async function PerformancePage() {
   let host: HostMetrics | null = null
   let api: ApiMetrics | null = null
@@ -90,17 +91,15 @@ export default async function PerformancePage() {
   let error: string | null = null
 
   try {
-    const res = await fetch('/api/system-metrics', {
-      cache: 'no-store',
-    })
+    const response = await GET()
+    const data = await response.json()
     
-    if (res.ok) {
-      const data = await res.json()
+    if (response.ok) {
       host = data.host || null
       api = data.api || null
       openclaw = data.openclaw || null
     } else {
-      error = `API Error (${res.status})`
+      error = `API Error (${response.status})`
     }
   } catch (e: any) {
     error = `Fehler: ${e.message}`
