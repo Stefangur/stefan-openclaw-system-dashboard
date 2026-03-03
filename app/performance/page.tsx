@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 interface PerformanceData {
   openclaw: {
@@ -195,6 +196,14 @@ export default function PerformancePage() {
 
   return (
     <div style={containerStyle}>
+      {/* Back Button */}
+      <Link href="/" style={{
+        display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+        color: '#60a5fa', textDecoration: 'none', fontSize: '0.9rem', marginBottom: '1rem',
+      }}>
+        ← Zurück
+      </Link>
+
       {/* Header */}
       <div style={headerStyle}>
         <h1 style={titleStyle}>
