@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 interface PerformanceMetrics {
   sessions: number;
   tokens_used: number;
@@ -246,8 +248,8 @@ export default function PerformancePage() {
     border: '1px solid rgba(148, 163, 184, 0.1)',
   };
 
-  const statusColor = data.openclaw.status === 'healthy' ? '#22c55e' : data.openclaw.status === 'warning' ? '#eab308' : '#ef4444';
-  const statusBadge = data.openclaw.status === 'healthy' ? '✅' : data.openclaw.status === 'warning' ? '⚠️' : '❌';
+  const statusColor = data ? (data.openclaw.status === 'healthy' ? '#22c55e' : data.openclaw.status === 'warning' ? '#eab308' : '#ef4444') : '#999';
+  const statusBadge = data ? (data.openclaw.status === 'healthy' ? '✅' : data.openclaw.status === 'warning' ? '⚠️' : '❌') : '❓';
 
   const getProgressColor = (value: number, threshold1 = 50, threshold2 = 75) => getStatusColor(value, { ok: threshold1, warning: threshold2 });
 
@@ -334,6 +336,8 @@ export default function PerformancePage() {
       )}
 
       {data && (
+        <>
+        <div style={gridStyle}>
 
         {/* CARD 1: OpenClaw Status */}
         <div style={cardStyle} onMouseEnter={(e) => {
