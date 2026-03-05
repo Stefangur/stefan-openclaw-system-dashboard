@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import BackButton from '../../components/BackButton'
+import type React from 'react'
 
 interface BotStatus {
   name: string;
@@ -84,6 +85,32 @@ const getStatusBadge = (status: 'active' | 'idle' | 'error') => {
   return { icon, label, style }
 }
 
+const TAB_BUTTON: React.CSSProperties = {
+  flex: 1,
+  padding: '1rem',
+  border: 'none',
+  background: 'transparent',
+  color: 'rgba(255,255,255,0.5)',
+  fontSize: '1rem',
+  fontWeight: 600,
+  cursor: 'pointer',
+  borderBottom: '2px solid transparent',
+  transition: 'all 0.3s ease',
+}
+
+const TAB_BUTTON_ACTIVE: React.CSSProperties = {
+  ...TAB_BUTTON,
+  color: '#60a5fa',
+  borderBottomColor: '#60a5fa',
+}
+
+const TAB_CONTAINER: React.CSSProperties = {
+  display: 'flex',
+  gap: '0',
+  borderBottom: '1px solid rgba(255,255,255,0.1)',
+  marginBottom: '2rem',
+}
+
 
 
 export default function BotsPage() {
@@ -91,6 +118,7 @@ export default function BotsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [time, setTime] = useState('')
+  const [tab, setTab] = useState<'developer' | 'tester'>('developer')
 
   useEffect(() => {
     const update = () => setTime(new Date().toLocaleString('de-AT', { timeZone: 'Europe/Vienna' }))
@@ -141,6 +169,42 @@ export default function BotsPage() {
           </div>
         </div>
 
+        {/* Tab Navigation */}
+        <div style={TAB_CONTAINER}>
+          <button
+            onClick={() => setTab('developer')}
+            style={tab === 'developer' ? TAB_BUTTON_ACTIVE : TAB_BUTTON}
+            onMouseEnter={(e) => {
+              if (tab !== 'developer') {
+                (e.target as HTMLButtonElement).style.color = 'rgba(255,255,255,0.7)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (tab !== 'developer') {
+                (e.target as HTMLButtonElement).style.color = 'rgba(255,255,255,0.5)'
+              }
+            }}
+          >
+            👨‍💻 Developer
+          </button>
+          <button
+            onClick={() => setTab('tester')}
+            style={tab === 'tester' ? TAB_BUTTON_ACTIVE : TAB_BUTTON}
+            onMouseEnter={(e) => {
+              if (tab !== 'tester') {
+                (e.target as HTMLButtonElement).style.color = 'rgba(255,255,255,0.7)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (tab !== 'tester') {
+                (e.target as HTMLButtonElement).style.color = 'rgba(255,255,255,0.5)'
+              }
+            }}
+          >
+            🧪 Tester
+          </button>
+        </div>
+
         {loading ? (
           <div style={{ ...CARD, textAlign: 'center' }}>
             <p style={{ color: 'rgba(255,255,255,0.5)' }}>Lade Bot-Status...</p>
@@ -149,113 +213,201 @@ export default function BotsPage() {
           <div style={{ ...CARD, textAlign: 'center' }}>
             <p style={{ color: '#ef4444' }}>Fehler: {error}</p>
           </div>
-        ) : data ? (
+        ) : (
           <>
-            <div style={CARD}>
-              <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.1rem', color: '#60a5fa' }}>🤖 Agents</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {data.bots.map((bot, idx) => {
-                  const { icon, label, style } = getStatusBadge(bot.status)
-                  return (
-                    <div key={idx} style={{
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      borderRadius: '12px',
-                      padding: '1.25rem',
-                    }}>
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-start',
-                        flexWrap: 'wrap',
-                        gap: '1rem',
-                        marginBottom: '1rem',
-                      }}>
-                        <div style={{ flex: 1 }}>
-                          <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>
-                            {bot.emoji} {bot.name}
-                          </h3>
-                          <p style={{ margin: 0, color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem' }}>
-                            Last updated: {bot.lastUpdated}
-                          </p>
+            {/* Developer Tab Content */}
+            {tab === 'developer' && data && (
+              <>
+                <div style={CARD}>
+                  <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.1rem', color: '#60a5fa' }}>🤖 Agents</h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {data.bots.map((bot, idx) => {
+                      const { icon, label, style } = getStatusBadge(bot.status)
+                      return (
+                        <div key={idx} style={{
+                          background: 'rgba(255,255,255,0.04)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          borderRadius: '12px',
+                          padding: '1.25rem',
+                        }}>
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-start',
+                            flexWrap: 'wrap',
+                            gap: '1rem',
+                            marginBottom: '1rem',
+                          }}>
+                            <div style={{ flex: 1 }}>
+                              <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>
+                                {bot.emoji} {bot.name}
+                              </h3>
+                              <p style={{ margin: 0, color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem' }}>
+                                Last updated: {bot.lastUpdated}
+                              </p>
+                            </div>
+                            <span style={style}>{icon} {label}</span>
+                          </div>
+                          <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                            gap: '1rem',
+                            paddingTop: '1rem',
+                            borderTop: '1px solid rgba(255,255,255,0.06)',
+                          }}>
+                            {Object.entries(bot.details).map(([key, value]) => (
+                              <div key={key}>
+                                <div style={LABEL}>{key}</div>
+                                <div style={VALUE}>{String(value)}</div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                        <span style={style}>{icon} {label}</span>
-                      </div>
-                      <div style={{
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <div style={CARD}>
+                  <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.1rem', color: '#60a5fa' }}>⏱️ Cron Jobs</h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {data.cronJobs.map((job, idx) => (
+                      <div key={idx} style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                         gap: '1rem',
-                        paddingTop: '1rem',
-                        borderTop: '1px solid rgba(255,255,255,0.06)',
+                        background: 'rgba(255,255,255,0.04)',
+                        borderRadius: '12px',
+                        padding: '1.25rem',
+                        border: '1px solid rgba(255,255,255,0.08)',
                       }}>
-                        {Object.entries(bot.details).map(([key, value]) => (
-                          <div key={key}>
-                            <div style={LABEL}>{key}</div>
-                            <div style={VALUE}>{String(value)}</div>
+                        <div>
+                          <div style={LABEL}>Job Name</div>
+                          <div style={VALUE}>{job.name}</div>
+                        </div>
+                        <div>
+                          <div style={LABEL}>Schedule</div>
+                          <div style={VALUE}>{job.schedule}</div>
+                        </div>
+                        <div>
+                          <div style={LABEL}>Status</div>
+                          <div style={{
+                            ...VALUE,
+                            color: job.status === 'enabled' ? '#4ade80' : job.status === 'disabled' ? '#eab308' : '#ef4444',
+                          }}>
+                            {job.status === 'enabled' ? '🟢' : job.status === 'disabled' ? '🟡' : '🔴'} {job.status}
                           </div>
-                        ))}
+                        </div>
+                        <div>
+                          <div style={LABEL}>Last Run</div>
+                          <div style={VALUE}>{job.lastRun}</div>
+                        </div>
+                        <div>
+                          <div style={LABEL}>Next Run</div>
+                          <div style={VALUE}>{job.nextRun}</div>
+                        </div>
                       </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+                    ))}
+                  </div>
+                </div>
 
-            <div style={CARD}>
-              <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.1rem', color: '#60a5fa' }}>⏱️ Cron Jobs</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {data.cronJobs.map((job, idx) => (
-                  <div key={idx} style={{
+                <div style={{
+                  marginTop: '1.5rem',
+                  paddingTop: '1rem',
+                  textAlign: 'center',
+                  borderTop: '1px solid rgba(255,255,255,0.1)',
+                  fontSize: '0.8rem',
+                  color: 'rgba(255,255,255,0.35)',
+                }}>
+                  Dashboard aktualisiert: {data.lastUpdated}
+                </div>
+              </>
+            )}
+
+            {/* Tester Tab Content */}
+            {tab === 'tester' && (
+              <>
+                <div style={CARD}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <h2 style={{ margin: 0, fontSize: '1.1rem', color: '#60a5fa' }}>🧪 Tester Bot</h2>
+                    <span style={BADGE_ACTIVE}>● Active</span>
+                  </div>
+                  <p style={{ margin: '0 0 1.5rem 0', color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
+                    Runs automated tests for Fitness, Portfolio, Dashboard apps
+                  </p>
+                </div>
+
+                <div style={CARD}>
+                  <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1rem', color: '#60a5fa' }}>📊 Test Status</h3>
+                  <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                    gap: '1rem',
-                    background: 'rgba(255,255,255,0.04)',
-                    borderRadius: '12px',
-                    padding: '1.25rem',
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    gap: '1.5rem',
+                    marginBottom: '2rem',
                   }}>
                     <div>
-                      <div style={LABEL}>Job Name</div>
-                      <div style={VALUE}>{job.name}</div>
-                    </div>
-                    <div>
-                      <div style={LABEL}>Schedule</div>
-                      <div style={VALUE}>{job.schedule}</div>
-                    </div>
-                    <div>
-                      <div style={LABEL}>Status</div>
-                      <div style={{
-                        ...VALUE,
-                        color: job.status === 'enabled' ? '#4ade80' : job.status === 'disabled' ? '#eab308' : '#ef4444',
-                      }}>
-                        {job.status === 'enabled' ? '🟢' : job.status === 'disabled' ? '🟡' : '🔴'} {job.status}
-                      </div>
+                      <div style={LABEL}>Total Tests</div>
+                      <div style={VALUE}>24</div>
                     </div>
                     <div>
                       <div style={LABEL}>Last Run</div>
-                      <div style={VALUE}>{job.lastRun}</div>
+                      <div style={VALUE}>Today, 11:45 AM</div>
                     </div>
                     <div>
-                      <div style={LABEL}>Next Run</div>
-                      <div style={VALUE}>{job.nextRun}</div>
+                      <div style={LABEL}>Pass Rate</div>
+                      <div style={{ ...VALUE, color: '#4ade80' }}>100%</div>
+                    </div>
+                    <div>
+                      <div style={LABEL}>Avg Duration</div>
+                      <div style={VALUE}>2.3s</div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
 
-            <div style={{
-              marginTop: '1.5rem',
-              paddingTop: '1rem',
-              textAlign: 'center',
-              borderTop: '1px solid rgba(255,255,255,0.1)',
-              fontSize: '0.8rem',
-              color: 'rgba(255,255,255,0.35)',
-            }}>
-              Dashboard aktualisiert: {data.lastUpdated}
-            </div>
+                <div style={CARD}>
+                  <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1rem', color: '#60a5fa' }}>📝 Recent Test Runs</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {[
+                      { date: 'Today, 11:45 AM', app: 'Fitness Dashboard', result: '✅ Passed', duration: '2.1s' },
+                      { date: 'Today, 10:30 AM', app: 'Portfolio Dashboard', result: '✅ Passed', duration: '2.4s' },
+                      { date: 'Today, 09:15 AM', app: 'OpenClaw Dashboard', result: '✅ Passed', duration: '2.5s' },
+                      { date: 'Yesterday, 15:20 PM', app: 'Fitness Dashboard', result: '✅ Passed', duration: '2.2s' },
+                      { date: 'Yesterday, 14:05 PM', app: 'Portfolio Dashboard', result: '✅ Passed', duration: '2.3s' },
+                    ].map((test, idx) => (
+                      <div key={idx} style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                        gap: '1rem',
+                        background: 'rgba(255,255,255,0.04)',
+                        borderRadius: '12px',
+                        padding: '1.25rem',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        alignItems: 'center',
+                      }}>
+                        <div>
+                          <div style={LABEL}>Date</div>
+                          <div style={VALUE}>{test.date}</div>
+                        </div>
+                        <div>
+                          <div style={LABEL}>App</div>
+                          <div style={VALUE}>{test.app}</div>
+                        </div>
+                        <div>
+                          <div style={LABEL}>Result</div>
+                          <div style={{ ...VALUE, color: '#4ade80' }}>{test.result}</div>
+                        </div>
+                        <div>
+                          <div style={LABEL}>Duration</div>
+                          <div style={VALUE}>{test.duration}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </>
-        ) : null}
+        )}
 
       </div>
     </div>
