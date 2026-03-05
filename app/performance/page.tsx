@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import BackButton from '../../components/BackButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -287,22 +288,7 @@ export default function PerformancePage() {
 
   return (
     <div style={containerStyle}>
-        <button
-          onClick={() => window.history.back()}
-          style={{
-            background: 'rgba(255,255,255,0.2)',
-            border: 'none',
-            color: 'white',
-            fontSize: '1rem',
-            padding: '0.5rem 1rem',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            marginBottom: '1.5rem',
-            fontWeight: 500,
-          }}
-        >
-          Zurück
-        </button>
+        <BackButton />
 
       {/* Header */}
       <div style={headerStyle}>

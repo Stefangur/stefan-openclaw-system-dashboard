@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import BackButton from '../../components/BackButton'
 
 interface BotStatus {
   name: string;
@@ -158,9 +159,7 @@ export default function BotsPage() {
     }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
-        <a href="https://sgu-dashboard-hub.onrender.com" style={{ color: '#60a5fa', textDecoration: 'none', fontSize: '0.9rem', display: 'inline-block', marginBottom: '1rem' }}>
-          Zurück zum Menü
-        </a>
+        <BackButton />
 
         <div style={{ ...CARD, marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>

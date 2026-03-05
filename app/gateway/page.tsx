@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import BackButton from '../../components/BackButton'
 
 // Stefan's OpenClaw Gateway Data (Real-Time)
 const fallbackData = {
@@ -82,21 +83,7 @@ export default function GatewayPage() {
           marginBottom: '2rem',
           gap: '1rem'
         }}>
-          <button
-            onClick={() => window.history.back()}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'white',
-              fontSize: '1rem',
-              padding: '0.5rem 1rem',
-              cursor: 'pointer',
-              marginBottom: '1.5rem',
-              fontWeight: 500,
-            }}
-          >
-            Zurück
-          </button>
+          <BackButton />
           <h1 style={{
             fontSize: '2rem',
             fontWeight: 'bold',

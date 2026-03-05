@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import BackButton from '../components/BackButton'
 
 const CARD: React.CSSProperties = {
   background: 'rgba(255,255,255,0.07)',
@@ -108,22 +109,7 @@ export default function OpenClawDashboard() {
     }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
-        <button
-          onClick={() => window.history.back()}
-          style={{
-            background: 'rgba(255,255,255,0.2)',
-            border: 'none',
-            color: 'white',
-            fontSize: '1rem',
-            padding: '0.5rem 1rem',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            marginBottom: '1.5rem',
-            fontWeight: 500,
-          }}
-        >
-          Zurück
-        </button>
+        <BackButton />
 
         {/* Header */}
         <div style={{ ...CARD, marginBottom: '1.5rem' }}>
