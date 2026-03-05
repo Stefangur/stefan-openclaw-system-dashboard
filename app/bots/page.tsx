@@ -172,19 +172,6 @@ export default function BotsPage() {
 
         <NavTabs active="bots" />
 
-        {/* Navigation Links */}
-        <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem', flexWrap: 'wrap', fontSize: '0.9rem' }}>
-          <Link href="/performance" style={{ color: '#60a5fa', textDecoration: 'none', fontWeight: 600, transition: 'opacity 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.7')} onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}>
-            📈 Performance
-          </Link>
-          <Link href="/" style={{ color: '#60a5fa', textDecoration: 'none', fontWeight: 600, transition: 'opacity 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.7')} onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}>
-            🤖 Overview
-          </Link>
-          <a href="https://sgu-dashboard-hub.onrender.com" style={{ color: '#60a5fa', textDecoration: 'none', fontWeight: 600, transition: 'opacity 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.7')} onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}>
-            🏠 Hub
-          </a>
-        </div>
-
         {loading ? (
           <div style={{ ...CARD, textAlign: 'center' }}>
             <p style={{ color: 'rgba(255,255,255,0.5)' }}>Lade Bot-Status...</p>
