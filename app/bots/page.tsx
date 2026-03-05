@@ -86,7 +86,6 @@ const getStatusBadge = (status: 'active' | 'idle' | 'error') => {
 }
 
 const TABS = [
-  { key: 'overview', label: '🤖 Übersicht', href: '/' },
   { key: 'performance', label: '📈 Performance', href: '/performance' },
   { key: 'bots', label: '🤖 Bots', href: '/bots' },
 ]

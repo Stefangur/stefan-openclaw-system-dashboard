@@ -59,8 +59,8 @@ const STATIC = {
 }
 
 const TABS = [
+  { key: 'performance', label: '📈 Performance', href: '/performance' },
   { key: 'bots', label: '🤖 Bots', href: '/bots' },
-  { key: 'overview', label: '🤖 Übersicht', href: '/' },
 ]
 
 function NavTabs({ active }: { active: string }) {
