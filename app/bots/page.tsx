@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import BackButton from '../../components/BackButton'
 
 interface BotStatus {
@@ -85,35 +84,7 @@ const getStatusBadge = (status: 'active' | 'idle' | 'error') => {
   return { icon, label, style }
 }
 
-const TABS = [
-  { key: 'performance', label: '📈 Performance', href: '/performance' },
-  { key: 'bots', label: '🤖 Bots', href: '/bots' },
-]
 
-function NavTabs({ active }: { active: string }) {
-  return (
-    <div style={{
-      display: 'flex', gap: '0.5rem', flexWrap: 'wrap',
-      marginBottom: '1.5rem',
-    }}>
-      {TABS.map(tab => (
-        <Link key={tab.key} href={tab.href} style={{
-          padding: '0.6rem 1.2rem',
-          borderRadius: '10px',
-          border: '1px solid rgba(255,255,255,0.15)',
-          background: active === tab.key ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.07)',
-          color: active === tab.key ? '#fff' : 'rgba(255,255,255,0.6)',
-          textDecoration: 'none',
-          fontSize: '0.9rem',
-          fontWeight: active === tab.key ? 700 : 400,
-          transition: 'all 0.2s',
-        }}>
-          {tab.label}
-        </Link>
-      ))}
-    </div>
-  )
-}
 
 export default function BotsPage() {
   const [data, setData] = useState<BotsData | null>(null)
@@ -169,8 +140,6 @@ export default function BotsPage() {
             <span style={BADGE_ACTIVE}>● Online</span>
           </div>
         </div>
-
-        <NavTabs active="bots" />
 
         {loading ? (
           <div style={{ ...CARD, textAlign: 'center' }}>
