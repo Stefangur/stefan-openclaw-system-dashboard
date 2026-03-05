@@ -159,7 +159,7 @@ export default function BotsPage() {
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
         <a href="https://sgu-dashboard-hub.onrender.com" style={{ color: '#60a5fa', textDecoration: 'none', fontSize: '0.9rem', display: 'inline-block', marginBottom: '1rem' }}>
-          ← Zurück zum Menü
+          Zurück zum Menü
         </a>
 
         <div style={{ ...CARD, marginBottom: '1.5rem' }}>

@@ -142,14 +142,21 @@ export default function SessionsPage() {
           marginBottom: '2rem',
           gap: '1rem'
         }}>
-          <Link href="/" style={{
-            color: '#8b5cf6',
-            textDecoration: 'none',
-            fontSize: '1.1rem',
-            fontWeight: '500'
-          }}>
-            ← Zurück zur Übersicht
-          </Link>
+          <button
+            onClick={() => window.history.back()}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'white',
+              fontSize: '1rem',
+              padding: '0.5rem 1rem',
+              cursor: 'pointer',
+              marginBottom: '1.5rem',
+              fontWeight: 500,
+            }}
+          >
+            Zurück
+          </button>
           <h1 style={{
             fontSize: '2rem',
             fontWeight: 'bold',
