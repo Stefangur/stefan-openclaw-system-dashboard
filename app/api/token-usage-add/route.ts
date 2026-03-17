@@ -28,6 +28,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate the date is actually valid (not 2026-13-45, etc)
+    const dateObj = new Date(date + 'T00:00:00Z')
+    if (isNaN(dateObj.getTime())) {
+      return NextResponse.json(
+        { error: 'Invalid date value' },
+        { status: 400 }
+      )
+    }
+
     // Validate total_tokens is a positive integer
     if (!Number.isInteger(total_tokens) || total_tokens < 0) {
       return NextResponse.json(
