@@ -90,12 +90,36 @@ function NavTabs({ active }: { active: string }) {
 
 export default function OpenClawDashboard() {
   const [time, setTime] = useState('')
+  const [daemonLogs, setDaemonLogs] = useState<string[]>([])
+  const [daemonStatus, setDaemonStatus] = useState('Unbekannt')
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     const update = () => setTime(new Date().toLocaleString('de-AT', { timeZone: 'Europe/Vienna' }))
     update()
     const iv = setInterval(update, 1000)
-    return () => clearInterval(iv)
+
+    // Load daemon logs
+    const loadDaemonLogs = async () => {
+      try {
+        const response = await fetch('/api/daemon-logs')
+        const data = await response.json()
+        setDaemonLogs(data.logs || [])
+        setDaemonStatus(data.status || 'Unbekannt')
+      } catch (error) {
+        console.error('Failed to load daemon logs:', error)
+        setDaemonStatus('Fehler')
+      }
+    }
+
+    loadDaemonLogs()
+    const logInterval = setInterval(loadDaemonLogs, 30000) // Refresh every 30s
+
+    return () => {
+      clearInterval(iv)
+      clearInterval(logInterval)
+    }
   }, [])
 
   return (
@@ -167,54 +191,59 @@ export default function OpenClawDashboard() {
           </div>
         </div>
 
-        {/* Dashboards — All Dashboards */}
-        <div style={{
-          marginTop: '1.5rem',
-          paddingTop: '1.5rem',
-          borderTop: '1px solid rgba(255,255,255,0.1)',
-          textAlign: 'center',
-        }}>
-          <h3 style={{ margin: '0 0 1rem 0', fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            🌐 Stefan's Dashboards
-          </h3>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-            gap: '0.75rem',
-          }}>
-            {STATIC.dashboards.map(d => (
-              <a key={d.url} href={d.url} target="_blank" rel="noopener noreferrer" style={{
-                padding: '0.75rem',
-                background: 'rgba(255,255,255,0.06)',
-                borderRadius: '8px',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: '#60a5fa',
-                textDecoration: 'none',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                transition: 'all 0.2s',
-                cursor: 'pointer',
-              }} onMouseOver={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.12)'
-                e.currentTarget.style.borderColor = 'rgba(96,165,250,0.5)'
-              }} onMouseOut={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
-              }}>
-                {d.name}
-              </a>
-            ))}
+        {/* Daemon Logs */}
+        <div style={CARD}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ margin: 0, fontSize: '1rem', color: '#60a5fa' }}>📊 Daemon Logs</h2>
+            <span style={{
+              ...BADGE_GREEN,
+              background: daemonStatus === 'Running' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)',
+              color: daemonStatus === 'Running' ? '#4ade80' : '#f87171',
+            }}>
+              {daemonStatus === 'Running' ? '● Läuft' : '● Gestoppt'}
+            </span>
           </div>
-          <div style={{
-            marginTop: '1rem',
-            fontSize: '0.7rem',
-            color: 'rgba(255,255,255,0.25)',
-          }}>
-            ℹ️ Live-Metriken via <strong>📈 Performance</strong> Tab
-          </div>
+          {mounted ? (
+            <div style={{
+              background: 'rgba(0,0,0,0.3)',
+              borderRadius: '10px',
+              padding: '1rem',
+              border: '1px solid rgba(255,255,255,0.08)',
+              maxHeight: '400px',
+              overflowY: 'auto',
+              fontFamily: 'Monaco, "Courier New", monospace',
+              fontSize: '0.75rem',
+              lineHeight: '1.4',
+              color: '#4ade80',
+            }}>
+              {daemonLogs.length > 0 ? (
+                daemonLogs.map((line, idx) => (
+                  <div key={idx} style={{ paddingLeft: '0.5rem', borderLeft: '2px solid rgba(74,222,128,0.3)' }}>
+                    <span style={{ color: 'rgba(255,255,255,0.4)', marginRight: '0.5rem', minWidth: '30px', display: 'inline-block' }}>
+                      {daemonLogs.length - idx}
+                    </span>
+                    {line}
+                  </div>
+                ))
+              ) : (
+                <div style={{ color: 'rgba(255,255,255,0.4)' }}>Logs werden geladen...</div>
+              )}
+            </div>
+          ) : (
+            <div style={{
+              background: 'rgba(0,0,0,0.3)',
+              borderRadius: '10px',
+              padding: '1rem',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: 'rgba(255,255,255,0.4)',
+            }}>
+              Logs werden geladen...
+            </div>
+          )}
         </div>
 
       </div>
     </div>
   )
 }
+// Force rebuild timestamp: Tue Mar 17 16:11:00 CET 2026
