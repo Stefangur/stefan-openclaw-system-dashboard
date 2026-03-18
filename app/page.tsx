@@ -61,6 +61,7 @@ const STATIC = {
 const TABS = [
   { key: 'performance', label: '📈 Performance', href: '/performance' },
   { key: 'bots', label: '🤖 Bots', href: '/bots' },
+  { key: 'token-costs', label: '💰 Token Costs', href: '/token-costs' },
 ]
 
 function NavTabs({ active }: { active: string }) {
