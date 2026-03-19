@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import WeatherDisplay from '@/components/WeatherDisplay'
 
 const CARD: React.CSSProperties = {
   background: 'rgba(255,255,255,0.07)',
@@ -147,9 +146,6 @@ export default function OpenClawDashboard() {
 
         {/* Nav Tabs */}
         <NavTabs active="overview" />
-
-        {/* Weather Display */}
-        <WeatherDisplay />
 
         {/* System Info */}
         <div style={CARD}>

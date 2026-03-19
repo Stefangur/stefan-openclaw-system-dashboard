@@ -68,21 +68,22 @@ export default function WeatherDisplay() {
           
           {/* TEMPERATURE - HIGH CONTRAST */}
           <div style={{
-            fontSize: '2.5rem',
-            fontWeight: 800,
+            fontSize: '2.8rem',
+            fontWeight: 900,
             color: '#ffffff',
             marginBottom: '0.5rem',
-            textShadow: '0 2px 6px rgba(0,0,0,0.4)',
+            textShadow: '0 2px 8px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.4)',
             letterSpacing: '-0.02em',
           }}>
             {loc.temperature}°C
           </div>
 
           <div style={{
-            fontSize: '1rem',
+            fontSize: '1.1rem',
             color: '#ffffff',
-            fontWeight: 600,
-            opacity: 0.95,
+            fontWeight: 800,
+            opacity: 1,
+            textShadow: '0 2px 6px rgba(0,0,0,0.5)',
           }}>
             {loc.condition}
           </div>
