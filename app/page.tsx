@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import BackButton from '../components/BackButton'
 
 const CARD: React.CSSProperties = {
   background: 'rgba(255,255,255,0.07)',
@@ -133,8 +132,6 @@ export default function OpenClawDashboard() {
       paddingBottom: '6rem',
     }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-
-        <BackButton />
 
         {/* Header */}
         <div style={{ ...CARD, marginBottom: '1.5rem' }}>
