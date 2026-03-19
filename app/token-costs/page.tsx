@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import BackButton from '../../components/BackButton';
 
 export default function TokenCostsPage() {
   const [data, setData] = useState(null);
@@ -28,6 +29,7 @@ export default function TokenCostsPage() {
   
   return (
     <div className="p-8 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 min-h-screen">
+      <BackButton />
       <h1 className="text-4xl font-bold text-white mb-8">Token Costs Dashboard</h1>
       
       {/* Simple Bar Chart */}
