@@ -27,7 +27,7 @@ export default function BackButton({ isDarkBackground = true }: BackButtonProps)
       onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
       aria-label="Zurück navigieren"
     >
-      <span style={{ fontSize: '1.2rem' }}>←</span> Zurück
+      Zurück
     </button>
   )
 }
