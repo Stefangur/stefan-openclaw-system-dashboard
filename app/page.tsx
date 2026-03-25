@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import BackButton from '../components/BackButton'
 
 const CARD: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.07)',
+  background: 'rgba(255,255,255,0.08)',
   backdropFilter: 'blur(12px)',
   borderRadius: '16px',
   padding: '1.5rem',
@@ -60,7 +61,6 @@ const STATIC = {
 const TABS = [
   { key: 'performance', label: '📈 Performance', href: '/performance' },
   { key: 'bots', label: '🤖 Bots', href: '/bots' },
-  { key: 'token-costs', label: '💰 Token Costs', href: '/token-costs' },
 ]
 
 function NavTabs({ active }: { active: string }) {
@@ -73,8 +73,8 @@ function NavTabs({ active }: { active: string }) {
         <Link key={tab.key} href={tab.href} style={{
           padding: '0.6rem 1.2rem',
           borderRadius: '10px',
-          border: '1px solid rgba(255,255,255,0.15)',
-          background: active === tab.key ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.07)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          background: active === tab.key ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)',
           color: active === tab.key ? '#fff' : 'rgba(255,255,255,0.6)',
           textDecoration: 'none',
           fontSize: '0.9rem',
@@ -125,13 +125,15 @@ export default function OpenClawDashboard() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       color: '#f1f5f9',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       padding: '2rem',
       paddingBottom: '6rem',
     }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+
+        <BackButton />
 
         {/* Header */}
         <div style={{ ...CARD, marginBottom: '1.5rem' }}>

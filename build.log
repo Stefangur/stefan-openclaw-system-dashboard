@@ -1,0 +1,61 @@
+
+> stefan-openclaw-dashboard@1.0.0 build
+> next build
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/butler/.openclaw/workspace/package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /Users/butler/.openclaw/workspace/stefan-openclaw-system-dashboard/package-lock.json
+
+   ▲ Next.js 15.5.12
+   - Environments: .env.production
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 2.4s
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/26) ...
+   Generating static pages (6/26) 
+   Generating static pages (12/26) 
+   Generating static pages (19/26) 
+ ✓ Generating static pages (26/26)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    5.52 kB         108 kB
+├ ○ /_not-found                            998 B         103 kB
+├ ƒ /api/bots                              161 B         102 kB
+├ ƒ /api/daemon-logs                       161 B         102 kB
+├ ƒ /api/debug                             161 B         102 kB
+├ ƒ /api/fitness                           161 B         102 kB
+├ ƒ /api/health                            161 B         102 kB
+├ ƒ /api/nutrition                         161 B         102 kB
+├ ƒ /api/performance                       161 B         102 kB
+├ ƒ /api/progress                          161 B         102 kB
+├ ƒ /api/system-metrics                    161 B         102 kB
+├ ƒ /api/token-costs-add                   161 B         102 kB
+├ ƒ /api/token-costs-list                  161 B         102 kB
+├ ƒ /api/token-costs-update                161 B         102 kB
+├ ƒ /api/token-stats/monthly               161 B         102 kB
+├ ƒ /api/token-usage-add                   161 B         102 kB
+├ ƒ /api/trader-activities                 161 B         102 kB
+├ ƒ /api/training                          161 B         102 kB
+├ ○ /bots                                1.92 kB         104 kB
+├ ○ /cron                                2.07 kB         104 kB
+├ ○ /gateway                             2.36 kB         105 kB
+├ ○ /performance                         4.53 kB         107 kB
+├ ○ /sessions                            3.04 kB         105 kB
+└ ○ /token-costs                         69.1 kB         171 kB
++ First Load JS shared by all             102 kB
+  ├ chunks/255-ebd51be49873d76c.js         46 kB
+  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+  └ other shared chunks (total)          1.92 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
