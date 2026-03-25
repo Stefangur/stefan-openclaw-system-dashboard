@@ -91,7 +91,8 @@ export default function TokenCostsDashboard() {
         setLoading(true)
         setError(null)
 
-        const response = await fetch('/api/token-stats/monthly', {
+        // Fetch token costs data from the actual API endpoint
+        const response = await fetch('/api/token-costs-list?days=30', {
           headers: {
             'X-Butler-Token': 'butler-stefan-2026',
           },
@@ -102,47 +103,78 @@ export default function TokenCostsDashboard() {
           throw new Error(`API error: ${response.status}`)
         }
 
-        const data: TokenStats = await response.json()
-        setTokenStats(data)
-
-        // Generate mock daily data for last 30 days (API would provide this)
-        const mockDaily: DailyTokenData[] = []
-        const today = new Date()
-        for (let i = 29; i >= 0; i--) {
-          const date = new Date(today)
-          date.setDate(date.getDate() - i)
-          const dateStr = date.toISOString().split('T')[0]
-
-          // Distribute monthly tokens across days
-          const monthlyTotal = data.monthly[0]?.totalTokens || 100000
-          const dailyBase = Math.floor(monthlyTotal / 30)
-
-          mockDaily.push({
-            date: dateStr,
-            tavily: Math.floor(dailyBase * 0.2 + Math.random() * dailyBase * 0.1),
-            claude: Math.floor(dailyBase * 0.4 + Math.random() * dailyBase * 0.15),
-            gpt: Math.floor(dailyBase * 0.2 + Math.random() * dailyBase * 0.1),
-            render: Math.floor(dailyBase * 0.15 + Math.random() * dailyBase * 0.05),
-            other: Math.floor(dailyBase * 0.05 + Math.random() * dailyBase * 0.02),
-            totalTokens: dailyBase,
-            costUsd: parseFloat((dailyBase / 1000000 * 0.5).toFixed(2)),
-          })
+        interface TokenCostResponse {
+          success: boolean
+          days: number
+          count: number
+          data: Array<{
+            date: string
+            tavily_eur: number
+            claude_eur: number
+            gpt_eur: number
+            render_eur: number
+            other_eur: number
+            total_eur: number
+            notes?: string
+            created_at: string
+            updated_at: string
+          }>
         }
 
-        setDailyData(mockDaily)
+        const costData: TokenCostResponse = await response.json()
 
-        // Calculate stats
-        const totalTokens = mockDaily.reduce((sum, d) => sum + d.totalTokens, 0)
-        const totalCost = mockDaily.reduce((sum, d) => sum + d.costUsd, 0)
-        const peakDay = Math.max(...mockDaily.map(d => d.totalTokens))
-        const dailyAvg = Math.floor(totalTokens / mockDaily.length)
+        if (!costData.success || !costData.data || costData.data.length === 0) {
+          throw new Error('No token cost data available')
+        }
+
+        // Convert EUR costs to the format expected by the component
+        const actualDaily: DailyTokenData[] = costData.data.map((record) => {
+          // Parse EUR costs and convert to USD for display (1 EUR ≈ 1.1 USD for display purposes)
+          // Actually, we'll show the EUR cost directly as it's already calculated
+          const totalEur = record.total_eur
+          
+          return {
+            date: record.date,
+            tavily: Math.round(record.tavily_eur * 1000), // Show as "tokens" for display
+            claude: Math.round(record.claude_eur * 1000),
+            gpt: Math.round(record.gpt_eur * 1000),
+            render: Math.round(record.render_eur * 1000),
+            other: Math.round(record.other_eur * 1000),
+            totalTokens: Math.round(totalEur * 1000),
+            costUsd: totalEur, // Store as EUR, display as EUR/USD
+          }
+        })
+
+        // Sort by date ascending (oldest to newest)
+        actualDaily.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+        setDailyData(actualDaily)
+
+        // Calculate stats from actual data
+        const totalTokens = actualDaily.reduce((sum, d) => sum + d.totalTokens, 0)
+        const totalCost = actualDaily.reduce((sum, d) => sum + d.costUsd, 0)
+        const peakDay = Math.max(...actualDaily.map(d => d.totalTokens), 0)
+        const dailyAvg = actualDaily.length > 0 ? Math.floor(totalTokens / actualDaily.length) : 0
 
         setStats({
           dailyAvg,
           totalCost,
           peakDay,
-          daysTracked: mockDaily.length,
+          daysTracked: actualDaily.length,
         })
+
+        // Fetch monthly stats for reference
+        const monthlyResponse = await fetch('/api/token-stats/monthly', {
+          headers: {
+            'X-Butler-Token': 'butler-stefan-2026',
+          },
+          cache: 'no-store',
+        })
+
+        if (monthlyResponse.ok) {
+          const monthlyData = await monthlyResponse.json()
+          setTokenStats(monthlyData)
+        }
       } catch (err) {
         console.error('Failed to fetch token stats:', err)
         setError(err instanceof Error ? err.message : 'Unknown error')
